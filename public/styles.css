@@ -1,0 +1,73 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  .container {
+    background-color: white;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 300px;
+    text-align: left;
+  }
+  
+  h1 {
+    font-size: 1.5em;
+    margin-bottom: 1em;
+  }
+  
+  .form label {
+    display: block;
+    margin: 0.5em 0 0.2em;
+  }
+  
+  .form input[type="text"] {
+    width: 94%;
+    padding: 0.5em;
+    margin-bottom: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .form input[type="submit"] {
+    background-color: #067490;
+    color: white;
+    border: none;
+    padding: 0.7em 1em;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  
+  .form input[type="submit"]:hover {
+    background-color: #0fafcb;
+  }
+  
+  .loader {
+    display: none;
+    border: 8px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 8px solid #3498db;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+    margin: 2em auto;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .message {
+    margin-top: 1em;
+    font-size: 1em;
+  }
+  

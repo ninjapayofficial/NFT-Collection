@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Deployment</title>
+</head>
+<body>
+  <h1>Deploy NFT</h1>
+  <form id="deployForm">
+    <label for="name">Token Name:</label><br>
+    <input type="text" id="name" name="name"><br>
+    <label for="symbol">Token Symbol:</label><br>
+    <input type="text" id="symbol" name="symbol"><br>
+    <label for="privateKey">Private Key:</label><br>
+    <input type="text" id="privateKey" name="privateKey"><br><br>
+    <input type="submit" value="Deploy">
+  </form>
+  
+  <h2 id="contractAddress"></h2> <!-- Placeholder for contract address -->
+
+  <script>
+    document.getElementById('deployForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const symbol = document.getElementById('symbol').value;
+      const privateKey = document.getElementById('privateKey').value;
+
+      try {
+        const response = await fetch('/setKeys', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, symbol, privateKey }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const result = await response.json();
+        console.log(result);
+
+        const deployResponse = await fetch('/deployNFT', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!deployResponse.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const deployResult = await deployResponse.json();
+        console.log(deployResult);
+
+        // Display the contract address on the page
+        document.getElementById('contractAddress').innerText = `Contract deployed to: ${deployResult.contractAddress}`;
+      } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+        document.getElementById('contractAddress').innerText = `Error: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
