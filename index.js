@@ -82,6 +82,62 @@ app.post('/deployNFT', async (req, res) => {
   }
 });
 
+// app.post('/mintNFT', async (req, res) => {
+//   try {
+//     const { contractAddress, toAddress, name, description, imageUrl } = req.body;
+
+//     // Creating a minimal metadata object with the image URL
+//     const metadata = {
+//       name: name, // This can be dynamic as well
+//       description: description, // This can be dynamic as well
+//       image: imageUrl
+//     };
+
+//     const nftContract = await sdk.getContract(contractAddress, "nft-collection");
+//     const mintResult = await nftContract.erc721.mintTo(toAddress, metadata);
+
+//     console.log(`Minted NFT to ${toAddress}`);
+//     res.json({ message: `Minted NFT to ${toAddress}`, mintResult });
+//   } catch (error) {
+//     console.error("Error minting NFT:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+app.post('/mintNFT', async (req, res) => {
+  console.log('Received /mintNFT request');
+  try {
+    const { privateKey, contractAddress, toAddress, name, description, imageUrl } = req.body;
+
+    if (!privateKey || !contractAddress || !toAddress || !name || !description || !imageUrl) {
+      console.error('Missing required fields in request body');
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    console.log('Minting NFT with privateKey:', privateKey);
+
+    const sdk = ThirdwebSDK.fromPrivateKey(privateKey, "sepolia", {
+      secretKey: config.thirdwebApiKey,
+    });
+
+    const nftContract = await sdk.getContract(contractAddress, "nft-collection");
+
+    const metadata = {
+      name: name,
+      description: description,
+      image: imageUrl
+    };
+
+    const mintResult = await nftContract.erc721.mintTo(toAddress, metadata);
+
+    console.log(`Minted NFT to ${toAddress}`);
+    res.json({ message: `Minted NFT to ${toAddress}`, mintResult });
+  } catch (error) {
+    console.error("Error minting NFT:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/test', (req, res) => {
   res.send('Server is running');
 });

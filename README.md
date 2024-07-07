@@ -75,7 +75,19 @@ To start the API Express server, run:
 node index.js
 ```
 
+### API 
 
+To use the Mint function, run:
+```sh
+curl -X POST http://localhost:8080/mintNFT -H "Content-Type: application/json" -d '{
+  "privateKey": "your_private_key_here",
+  "contractAddress": "deployed_contract_address_here",
+  "toAddress": "recipient_address_here",
+  "name": "NFT Name",
+  "description": "NFT Description",
+  "imageUrl": "https://example.com/image.png"
+}'
+```
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
