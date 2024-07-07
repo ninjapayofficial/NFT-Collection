@@ -18,7 +18,7 @@ npm run dev
 
 
 ```markdown
-# ERC20 Thirdweb Token Contract
+# ERC721 Thirdweb Token Contract
 
 This repository contains an ERC20 token contract using Thirdweb. The contract can be deployed and interacted with using a set of API endpoints provided in the `index.js` file.
 
