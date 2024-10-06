@@ -68,7 +68,7 @@ app.post('/deployNFT', async (req, res) => {
         platform_fee_recipient: ethers.constants.AddressZero,
         platform_fee_basis_points: 100 // 1%
       },
-      "5.0.1", // Specify the version
+      "5.0.2", // Specify the version
       {
         gasLimit: 5000000, // Set a higher gas limit
       }
