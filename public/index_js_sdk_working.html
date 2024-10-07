@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -9,19 +9,9 @@
 <body>
   <div class="container">
     <h1>Deploy NFT</h1>
-    <p>Please select the network, connect your wallet, and approve the connection request in MetaMask.</p>
-    
-    <!-- Network Selection Dropdown -->
-    <label for="network">Select Network:</label>
-    <select id="network" name="network">
-      <option value="sepolia">Sepolia</option>
-      <option value="mainnet">Mainnet</option>
-      <!-- Add more networks as needed -->
-    </select><br><br>
-    
+    <p>Please click "Connect Wallet" and approve the connection request in MetaMask.</p>
     <!-- Connect Wallet Button -->
     <button id="connectWalletButton">Connect Wallet</button>
-    
     <form id="deployForm" class="form">
       <label for="name">Token Name:</label>
       <input type="text" id="name" name="name" required><br>
@@ -48,62 +38,15 @@
     const CLIENT_ID = '690062c61fec9aa02c8f0d8d84e2dc99'; // Replace with your actual Client ID
     const SECRET_KEY = 'WA7-QDoWghPpkIgjmKWtvUGSOgzD9c06_lDqUzcEK50o_9bdGo9u5fGm1aAp7lBRqdxp0fJ74NFRWeIp0ahTiA'; // Replace with your actual Secret Key
 
-    // Function to map network names to chain IDs
-    const networkChainIds = {
-      sepolia: '0xaa36a7',
-      mainnet: '0x1',
-      // Add more networks and their respective chain IDs as needed
-    };
-
-    // Function to prompt MetaMask to switch networks
-    async function switchNetwork(selectedNetwork) {
-      const chainId = networkChainIds[selectedNetwork];
-      if (!chainId) {
-        alert('Unsupported network selected.');
-        return false;
-      }
-
-      try {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId }],
-        });
-        return true;
-      } catch (switchError) {
-        // This error code indicates that the chain has not been added to MetaMask.
-        if (switchError.code === 4902) {
-          alert('Please add the selected network to MetaMask.');
-        } else {
-          console.error('Failed to switch network:', switchError);
-          alert('Failed to switch network.');
-        }
-        return false;
-      }
-    }
-
-    // Function to initialize Thirdweb SDK
-    function initializeSDK() {
-      sdkInstance = new ThirdwebSDK(signer, {
-        clientId: CLIENT_ID,
-        secretKey: SECRET_KEY
-      });
-      console.log('Thirdweb SDK initialized.');
-    }
+    // Verify if Thirdweb SDK and ethers are loaded
+    console.log('Thirdweb SDK:', ThirdwebSDK);
+    console.log('ethers:', ethers);
 
     // Connect Wallet
     document.getElementById('connectWalletButton').addEventListener('click', async () => {
       const connectButton = document.getElementById('connectWalletButton');
       connectButton.disabled = true;
       connectButton.innerText = 'Connecting...';
-
-      // Get selected network
-      const selectedNetwork = document.getElementById('network').value;
-      const networkSwitched = await switchNetwork(selectedNetwork);
-      if (!networkSwitched) {
-        connectButton.disabled = false;
-        connectButton.innerText = 'Connect Wallet';
-        return;
-      }
 
       if (window.ethereum) {
         try {
@@ -112,7 +55,10 @@
           signer = provider.getSigner();
 
           // Initialize Thirdweb SDK with Client ID and Secret Key
-          initializeSDK();
+          sdkInstance = new ThirdwebSDK(signer, {
+            clientId: CLIENT_ID,
+            secretKey: SECRET_KEY
+          });
 
           console.log('Wallet connected');
           document.getElementById('message').innerText = 'Wallet connected';
@@ -143,23 +89,22 @@
 
     // Listen for account changes
     if (window.ethereum) {
-      window.ethereum.on('accountsChanged', async (accounts) => {
+      window.ethereum.on('accountsChanged', (accounts) => {
         if (accounts.length === 0) {
           document.getElementById('message').innerText = 'Please connect to MetaMask.';
           sdkInstance = null;
         } else {
           signer = provider.getSigner();
-          initializeSDK();
+          sdkInstance = new ThirdwebSDK(signer, {
+            clientId: CLIENT_ID,
+            secretKey: SECRET_KEY
+          });
           document.getElementById('message').innerText = 'Wallet connected';
         }
       });
 
-      window.ethereum.on('chainChanged', async (chainId) => {
-        // Optional: Update the UI or re-initialize SDK
-        console.log('Chain changed to:', chainId);
-        document.getElementById('message').innerText = 'Chain changed. Please reconnect if necessary.';
-        // Optionally re-initialize SDK
-        initializeSDK();
+      window.ethereum.on('chainChanged', (chainId) => {
+        window.location.reload();
       });
     }
 
@@ -200,17 +145,7 @@
         );
 
         console.log("NFT Contract deployed to:", contractAddress);
-        
-        // Determine Etherscan link based on selected network
-        const selectedNetwork = document.getElementById('network').value;
-        let etherscanLink = '';
-        if (selectedNetwork === 'sepolia') {
-          etherscanLink = `https://sepolia.etherscan.io/address/${contractAddress}`;
-        } else if (selectedNetwork === 'mainnet') {
-          etherscanLink = `https://etherscan.io/address/${contractAddress}`;
-        }
-        // Add more conditions for additional networks if needed
-
+        const etherscanLink = `https://sepolia.etherscan.io/address/${contractAddress}`;
         document.getElementById('message').innerHTML = `Contract deployed to: <a href="${etherscanLink}" target="_blank">${contractAddress}</a>`;
       } catch (error) {
         console.error('Error deploying contract:', error);
@@ -223,4 +158,4 @@
     });
   </script>
 </body>
-</html>
+</html> -->

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Token Deployment</title>
+  <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file if any -->
+</head>
+<body>
+  <div class="container">
+    <h1>Deploy NFT</h1>
+    <p>Please click "Connect Wallet" and approve the connection request in MetaMask.</p>
+    <!-- Connect Wallet Button -->
+    <button id="connectWalletButton">Connect Wallet</button>
+    <form id="deployForm" class="form">
+      <label for="name">Token Name:</label>
+      <input type="text" id="name" name="name" required><br>
+      <label for="symbol">Token Symbol:</label>
+      <input type="text" id="symbol" name="symbol" required><br><br>
+      <input type="submit" value="Deploy">
+    </form>
+    
+    <div id="loader" class="loader" style="display: none;"></div> <!-- Loader -->
+    <h2 id="message" class="message"></h2> <!-- Placeholder for messages -->
+  </div>
+
+  <script src="bundle.js"></script> <!-- Include the bundled JavaScript -->
+</body>
+</html>
