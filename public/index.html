@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Token Deployment</title>
-  <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file if any -->
+  
+  <!-- Link to External CSS -->
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
@@ -17,20 +19,22 @@
       <option value="sepolia">Sepolia</option>
       <option value="mainnet">Mainnet</option>
       <!-- Add more networks as needed -->
-    </select><br><br>
+    </select>
     
     <!-- Connect Wallet Button -->
     <button id="connectWalletButton">Connect Wallet</button>
     
-    <form id="deployForm" class="form">
+    <form id="deployForm" class="form" style="display: none;">
       <label for="name">Token Name:</label>
-      <input type="text" id="name" name="name" required><br>
+      <input type="text" id="name" name="name" placeholder="Enter token name" required>
+      
       <label for="symbol">Token Symbol:</label>
-      <input type="text" id="symbol" name="symbol" required><br><br>
+      <input type="text" id="symbol" name="symbol" placeholder="Enter token symbol" required>
+      
       <input type="submit" value="Deploy">
     </form>
     
-    <div id="loader" class="loader" style="display: none;"></div> <!-- Loader -->
+    <div id="loader" class="loader"></div> <!-- Loader -->
     <h2 id="message" class="message"></h2> <!-- Placeholder for messages -->
   </div>
 
@@ -72,7 +76,7 @@
       } catch (switchError) {
         // This error code indicates that the chain has not been added to MetaMask.
         if (switchError.code === 4902) {
-          alert('Please add the selected network to MetaMask.');
+          alert('The selected network is not available in your MetaMask. Please add it manually.');
         } else {
           console.error('Failed to switch network:', switchError);
           alert('Failed to switch network.');
@@ -93,11 +97,17 @@
     // Connect Wallet
     document.getElementById('connectWalletButton').addEventListener('click', async () => {
       const connectButton = document.getElementById('connectWalletButton');
+      const deployForm = document.getElementById('deployForm');
+      const networkSelect = document.getElementById('network');
+      const loader = document.getElementById('loader');
+      const message = document.getElementById('message');
+
       connectButton.disabled = true;
       connectButton.innerText = 'Connecting...';
+      message.innerText = '';
 
       // Get selected network
-      const selectedNetwork = document.getElementById('network').value;
+      const selectedNetwork = networkSelect.value;
       const networkSwitched = await switchNetwork(selectedNetwork);
       if (!networkSwitched) {
         connectButton.disabled = false;
@@ -115,7 +125,10 @@
           initializeSDK();
 
           console.log('Wallet connected');
-          document.getElementById('message').innerText = 'Wallet connected';
+          message.innerText = '✅ Wallet connected';
+
+          // Show the deploy form
+          deployForm.style.display = 'block';
 
           // Optionally hide the connect button
           connectButton.style.display = 'none';
@@ -123,19 +136,19 @@
           // Check network
           const network = await provider.getNetwork();
           console.log('Connected network:', network.name);
-          document.getElementById('message').innerText += ` | Network: ${network.name}`;
+          message.innerText += ` | 🌐 Network: ${capitalizeFirstLetter(network.name)}`;
         } catch (error) {
           console.error('Error connecting wallet:', error);
           const errorMessage = error.code === 4001 
             ? 'Connection request rejected by user.' 
             : 'An unexpected error occurred.';
-          document.getElementById('message').innerText = `Error: ${errorMessage}`;
+          message.innerText = `❌ Error: ${errorMessage}`;
           connectButton.disabled = false;
           connectButton.innerText = 'Connect Wallet';
         }
       } else {
         console.error('MetaMask is not installed.');
-        document.getElementById('message').innerText = 'MetaMask is not installed.';
+        message.innerText = '❌ MetaMask is not installed.';
         connectButton.disabled = false;
         connectButton.innerText = 'Connect Wallet';
       }
@@ -144,20 +157,28 @@
     // Listen for account changes
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', async (accounts) => {
+        const deployForm = document.getElementById('deployForm');
+        const message = document.getElementById('message');
+
         if (accounts.length === 0) {
-          document.getElementById('message').innerText = 'Please connect to MetaMask.';
+          message.innerText = '🔴 Please connect to MetaMask.';
           sdkInstance = null;
+          deployForm.style.display = 'none';
         } else {
           signer = provider.getSigner();
           initializeSDK();
-          document.getElementById('message').innerText = 'Wallet connected';
+          message.innerText = '✅ Wallet connected';
+          // Optionally update network info
+          const network = await provider.getNetwork();
+          message.innerText += ` | 🌐 Network: ${capitalizeFirstLetter(network.name)}`;
         }
       });
 
       window.ethereum.on('chainChanged', async (chainId) => {
         // Optional: Update the UI or re-initialize SDK
         console.log('Chain changed to:', chainId);
-        document.getElementById('message').innerText = 'Chain changed. Please reconnect if necessary.';
+        const message = document.getElementById('message');
+        message.innerText = '🔄 Chain changed. Please reconnect if necessary.';
         // Optionally re-initialize SDK
         initializeSDK();
       });
@@ -167,19 +188,30 @@
     document.getElementById('deployForm').addEventListener('submit', async (event) => {
       event.preventDefault();
 
+      const message = document.getElementById('message');
+      const loader = document.getElementById('loader');
+      const deployButton = event.target.querySelector('input[type="submit"]');
+
       if (!sdkInstance) {
-        document.getElementById('message').innerText = 'Please connect your wallet first.';
+        message.innerText = '❌ Please connect your wallet first.';
         return;
       }
 
       // Show loader
-      document.getElementById('loader').style.display = 'block';
-      document.getElementById('message').innerText = '';
+      loader.style.display = 'block';
+      message.innerText = '';
+      deployButton.disabled = true;
+      deployButton.value = 'Deploying...';
 
-      const name = document.getElementById('name').value;
-      const symbol = document.getElementById('symbol').value;
+      const name = document.getElementById('name').value.trim();
+      const symbol = document.getElementById('symbol').value.trim();
 
       try {
+        // Validate input
+        if (!name || !symbol) {
+          throw new Error('Token Name and Symbol are required.');
+        }
+
         // Deploy the contract
         const contractAddress = await sdkInstance.deployer.deployBuiltInContract(
           "nft-collection",
@@ -200,7 +232,7 @@
         );
 
         console.log("NFT Contract deployed to:", contractAddress);
-        
+
         // Determine Etherscan link based on selected network
         const selectedNetwork = document.getElementById('network').value;
         let etherscanLink = '';
@@ -211,16 +243,23 @@
         }
         // Add more conditions for additional networks if needed
 
-        document.getElementById('message').innerHTML = `Contract deployed to: <a href="${etherscanLink}" target="_blank">${contractAddress}</a>`;
+        message.innerHTML = `🎉 Contract deployed to: <a href="${etherscanLink}" target="_blank">${contractAddress}</a>`;
       } catch (error) {
         console.error('Error deploying contract:', error);
         const errorMessage = error.reason || error.message || 'Unknown error during deployment.';
-        document.getElementById('message').innerText = `Deployment Error: ${errorMessage}`;
+        message.innerText = `❌ Deployment Error: ${errorMessage}`;
       } finally {
-        // Hide loader
-        document.getElementById('loader').style.display = 'none';
+        // Hide loader and reset deploy button
+        loader.style.display = 'none';
+        deployButton.disabled = false;
+        deployButton.value = 'Deploy';
       }
     });
+
+    // Utility function to capitalize first letter
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
   </script>
 </body>
 </html>
